@@ -1,0 +1,10 @@
+# Generated / local outputs (users reproduce on their machine)
+data/*.mat
+results/*.mat
+results/figures/*.png
+results/figures/*.eps
+savedAgents/**/*
+!savedAgents/README.md
+.DS_Store
+*.asv
+OfflineRL/

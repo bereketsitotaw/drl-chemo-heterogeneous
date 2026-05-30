@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "Adaptive Chemotherapy via Deep Reinforcement Learning for Heterogeneous Populations — Code"
+message: "If you use this software, please cite the corresponding paper."
+authors:
+  - family-names: Kidane
+    given-names: Bereket Sitotaw
+  - family-names: Motayed
+    given-names: Md Samiul Haque
+  - family-names: Wang
+    given-names: Shuo
+license: MIT
+repository-code: "https://github.com/bereketsitotaw/drl-chemo-heterogeneous"
+preferred-citation:
+  type: article
+  title: "Adaptive Chemotherapy Control under Tumor Heterogeneity via Reinforcement Learning"
+  authors:
+    - family-names: Kidane
+      given-names: Bereket Sitotaw
+    - family-names: Motayed
+      given-names: Md Samiul Haque
+    - family-names: Wang
+      given-names: Shuo
+  year: 2026
+  notes: "University of Texas at Arlington. Update DOI when published."
