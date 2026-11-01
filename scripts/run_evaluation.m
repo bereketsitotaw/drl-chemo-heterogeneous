@@ -10,9 +10,12 @@ function summary = run_evaluation(cfg, opts)
     if nargin < 1 || isempty(cfg), cfg = config(); end
     if nargin < 2, opts = struct(); end
     opts = fill_eval_opts(opts, cfg);
+    assert_publication_defaults(cfg);
 
     fprintf('\n%s\n', repmat('=', 1, 60));
     fprintf('  SIMULATION EVALUATION (pretrained agents only)\n');
+    fprintf('  Pins: (alpha,beta,gamma)=(%g,%g,%g); agents DQN→%s TD3→%s\n', ...
+        cfg.cost.alpha, cfg.cost.beta, cfg.cost.gamma, cfg.dqn_run_subdir, cfg.td3_run_subdir);
     fprintf('%s\n\n', repmat('=', 1, 60));
 
     verify_agents(cfg);
@@ -58,6 +61,10 @@ function summary = run_evaluation(cfg, opts)
 
     save(cfg.pmp_data_path, 'pmp_data', '-v7.3');
     save(cfg.rl_data_path, 'rl_results', '-v7.3');
+    if isfield(cfg, 'pmp_generated_path')
+        save(cfg.pmp_generated_path, 'pmp_data', '-v7.3');
+        save(cfg.rl_generated_path, 'rl_results', '-v7.3');
+    end
     fprintf('Updated %s and %s (for main(''figures'')).\n', cfg.pmp_data_path, cfg.rl_data_path);
 
     if opts.save_figures

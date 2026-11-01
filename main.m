@@ -10,9 +10,15 @@ function main(arg1, arg2, arg3, varargin)
 %   main('figures', struct('save_png', true))  also export PNGs
 %
 %   main('train')                      clean DQN + TD3 (~hours), auto PaperStyle
+%
+%   main('test')                       lightweight smoke unit tests (no train)
+%   main('smoke')                      PMP plumbing + publication pin check
+%   main('validate')                   config + Table III/IV pin self-check
 
     root = fileparts(mfilename('fullpath'));
     addpath(fullfile(root, 'scripts'));
+    addpath(fullfile(root, 'configs'));
+    addpath(fullfile(root, 'tests'));
     clc; close all;
     rng(42, 'twister');
 
@@ -21,7 +27,7 @@ function main(arg1, arg2, arg3, varargin)
     switch lower(char(arg1))
         case {'help', 'all'}
             drl_pipeline(root, 'help');
-        case {'eval', 'evaluate', 'test'}
+        case {'eval', 'evaluate'}
             if nargin >= 2
                 drl_pipeline(root, 'eval', arg2);
             else
@@ -52,6 +58,12 @@ function main(arg1, arg2, arg3, varargin)
             drl_pipeline(root, 'figures', arg2);
         case 'ablation'
             drl_pipeline(root, 'ablation', varargin{:});
+        case 'test'
+            run_smoke_tests();
+        case 'smoke'
+            drl_pipeline(root, 'smoke');
+        case 'validate'
+            drl_pipeline(root, 'validate');
         otherwise
             error('Unknown command "%s". Run main(''help'').', arg1);
     end
