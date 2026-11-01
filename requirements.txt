@@ -1,0 +1,4 @@
+MATLAB R2020a or later (R2024b used in the paper)
+Reinforcement Learning Toolbox
+Parallel Computing Toolbox (recommended)
+Optimization Toolbox (fsolve for PMP)

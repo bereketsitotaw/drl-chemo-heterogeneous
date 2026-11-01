@@ -11,11 +11,11 @@ Users clone, run `main('train')`, then `main('eval')` on their machine.
 ## Push steps
 
 ```bash
-cd /Users/berekets.kidane/Desktop/PHD/Year2/Projects/Cancer/DRL_Chemotherapy/DRL_chemo_github
+cd /path/to/DRL_chemo_github   # this clone; no machine-specific absolute path required
 
 git init
 git add .
-git status    # confirm savedAgents/ only has README.md, no .mat files
+git status    # confirm savedAgents/ only has README.md (+ empty .gitkeep), no .mat files
 git commit -m "Initial release: DRL heterogeneous chemotherapy reproduction code"
 git branch -M main
 git remote add origin https://github.com/bereketsitotaw/drl-chemo-heterogeneous.git
@@ -24,9 +24,9 @@ git push -u origin main
 
 Commit with **your** name/email only.
 
-## What stays on your Mac only
+## What stays local-only (not in the public clone)
 
-Parent folder `DRL_Chemotherapy/savedAgents/` — all training runs, including:
+If this repo is nested under a fuller `DRL_Chemotherapy/` workspace, parent `savedAgents/` may hold training runs, including:
 
 - `20260530_113808_Clean` (DQN)
 - `20260530_120643_Clean` (TD3)
