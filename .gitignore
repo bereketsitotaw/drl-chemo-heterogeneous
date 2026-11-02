@@ -1,10 +1,30 @@
 # Generated / local outputs (users reproduce on their machine)
 data/*.mat
 results/*.mat
+results/generated/**
+!results/generated/README.md
 results/figures/*.png
 results/figures/*.eps
-savedAgents/**/*
+results/figures/*.fig
+!results/reference/**
+savedAgents/**
 !savedAgents/README.md
-.DS_Store
-*.asv
+!savedAgents/DQN/
+!savedAgents/DQN/.gitkeep
+!savedAgents/TD3/
+!savedAgents/TD3/.gitkeep
 OfflineRL/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*~
+*.swp
+
+# MATLAB
+*.asv
+*.autosave
+*.mex*
+*.slxc
+slprj/
+*.prj

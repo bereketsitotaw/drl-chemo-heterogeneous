@@ -12,7 +12,10 @@ Compares **DQN** (discrete dosing) and **TD3** (continuous dosing) against a **P
 git clone https://github.com/bereketsitotaw/drl-chemo-heterogeneous.git
 cd drl-chemo-heterogeneous
 
-main('pmp')                  % PMP benchmark (~minutes)
+main('test')                 % lightweight smoke unit tests
+main('validate')             % publication pin self-check
+main('smoke')                % PMP + Table III soft pin (~minutes)
+main('pmp')                  % PMP benchmark
 main('train')                % DQN + TD3 (~2–5 hours)
 main('eval')                 % PMP + nominal + 100-patient cohort
 main('figures')              % display Figs. 1–4
@@ -34,20 +37,25 @@ main('figures', struct('save_png', true))
 
 | `main(...)` | Paper |
 |-------------|-------|
-| `'pmp'` | Fig. 1 — PMP benchmark |
+| `'pmp'` / `'smoke'` | Fig. 1 — PMP benchmark |
 | `'eval'` + `'figures', 2` | Fig. 2 — nominal DQN / TD3 vs PMP |
 | `'eval'` + `'figures', 3` | Fig. 3 — cohort Pareto |
 | `'eval'` + `'figures', 4` | Fig. 4 — median robustness trajectories |
 | `'train'` + `'ablation'` | Table I — DQN action count (train per action count) |
 
-Details: `docs/REPRODUCIBILITY_DRL.md`, training: `docs/TRAINING.md`.
+Cost weights locked to $(\alpha,\beta,\gamma)=(500,400,4000)$. Details: `docs/REPRODUCIBILITY_DRL.md`, training: `docs/TRAINING.md`, agents: `docs/AGENT_PROVENANCE.md`.
 
 ## Layout
 
 ```
 main.m
 scripts/          % model, PMP, RL env, train, eval, figures
+configs/          % publication asserts, reference pins, smoke settings
+tests/            % lightweight smoke suite
 docs/
+results/
+  generated/      % runtime mats (gitignored)
+  reference/      % pin docs (tracked)
 savedAgents/      % README only in git; agents created by main('train')
 ```
 

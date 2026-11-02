@@ -1,0 +1,58 @@
+name: repo-smoke
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  layout-and-publication-pins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Required paths exist
+        run: |
+          set -euo pipefail
+          test -f main.m
+          test -f scripts/config.m
+          test -f scripts/tumor_dynamics.m
+          test -f scripts/solve_pmp.m
+          test -f scripts/build_env3.m
+          test -f scripts/build_agent.m
+          test -f configs/assert_publication_defaults.m
+          test -f configs/reference_metrics.m
+          test -f configs/reproducibility_settings.m
+          test -f tests/run_smoke_tests.m
+          test -f docs/REPRODUCIBILITY_DRL.md
+          test -f results/reference/README.md
+          test -f CITATION.cff
+          test -f LICENSE
+
+      - name: Paper cost / model pins present
+        run: |
+          set -euo pipefail
+          grep -q "cfg.cost.alpha = 500" scripts/config.m
+          grep -q "cfg.cost.beta = 400" scripts/config.m
+          grep -q "cfg.cost.gamma = 4000" scripts/config.m
+          grep -q "cfg.cost.Umax = 3.0" scripts/config.m
+          grep -q "cfg.model.m = 21" scripts/config.m
+          grep -q "cfg.model.T = 10" scripts/config.m
+          grep -q "cfg.train.dqn_actions = 7" scripts/config.m
+          grep -q "cfg.num_patients = 100" scripts/config.m
+          grep -q "cfg.cohort_variation = 0.10" scripts/config.m
+
+      - name: Table III/IV reference pins present
+        run: |
+          set -euo pipefail
+          grep -q "87.72" configs/reference_metrics.m
+          grep -q "86.93" configs/reference_metrics.m
+          grep -q "89.11" configs/reference_metrics.m
+          grep -q "82.78" configs/reference_metrics.m
+          grep -q "84.07" configs/reference_metrics.m
+
+      - name: No accidental experimental cost literals in config
+        run: |
+          set -euo pipefail
+          # Guard against mutation-style dirty drifts in the DRL config defaults.
+          ! grep -E "cfg\.cost\.alpha = 1[^0-9]" scripts/config.m
+          ! grep -E "cfg\.cost\.beta = 0\.1" scripts/config.m

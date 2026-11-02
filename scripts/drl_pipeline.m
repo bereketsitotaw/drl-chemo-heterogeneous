@@ -2,13 +2,16 @@ function out = drl_pipeline(repo_root, action, arg2, arg3, varargin)
 %DRL_PIPELINE Run PMP, training, cohort simulation, and paper figures.
 
     addpath(fullfile(repo_root, 'scripts'));
+    addpath(fullfile(repo_root, 'configs'));
+    addpath(fullfile(repo_root, 'tests'));
     cfg = config();
+    assert_publication_defaults(cfg);
 
     switch lower(char(action))
         case 'help'
             print_help();
             out = [];
-        case {'eval', 'evaluate', 'test'}
+        case {'eval', 'evaluate'}
             opts = struct();
             if nargin >= 3 && ~isempty(arg2)
                 if isstruct(arg2), opts = arg2;
@@ -23,6 +26,10 @@ function out = drl_pipeline(repo_root, action, arg2, arg3, varargin)
             out = run_evaluation(cfg, opts);
         case 'pmp'
             out = run_pmp(cfg);
+        case 'smoke'
+            out = run_smoke(cfg);
+        case 'validate'
+            out = validate_reference_pin(cfg);
         case 'train'
             if nargin >= 3 && isstruct(arg2)
                 out = run_training(cfg, arg2);
@@ -72,7 +79,10 @@ function print_help()
         '  main(''figures'')                  display Figs 1–4 (on screen)\n', ...
         '  main(''figures'', struct(''save_png'',true))  also save PNGs\n\n', ...
         '  main(''train'')                  clean train DQN+TD3, promote to PaperStyle\n', ...
-        '  main(''train'', struct(''agents'',''DQN''))   one agent only\n\n']);
+        '  main(''train'', struct(''agents'',''DQN''))   one agent only\n\n', ...
+        '  main(''test'')                   lightweight smoke unit tests\n', ...
+        '  main(''smoke'')                  PMP plumbing + Table III soft pin\n', ...
+        '  main(''validate'')               publication config / pin self-check\n\n']);
 end
 
 function s = merge_struct(s, t)
@@ -83,10 +93,32 @@ end
 %==========================================================================
 function pmp_data = run_pmp(cfg)
     fprintf('Solving PMP benchmark (nominal patient)...\n');
+    fprintf('  Publication pins: (alpha,beta,gamma)=(%g,%g,%g), n=%d, T=%g, Umax=%g\n', ...
+        cfg.cost.alpha, cfg.cost.beta, cfg.cost.gamma, cfg.model.m, cfg.model.T, cfg.cost.Umax);
     pmp_raw = solve_pmp(cfg);
     pmp_data = package_pmp_for_figures(pmp_raw, cfg);
     save(cfg.pmp_data_path, 'pmp_data', '-v7.3');
-    fprintf('Saved %s\n', cfg.pmp_data_path);
+    if isfield(cfg, 'pmp_generated_path')
+        save(cfg.pmp_generated_path, 'pmp_data', '-v7.3');
+        fprintf('Saved %s and %s\n', cfg.pmp_data_path, cfg.pmp_generated_path);
+    else
+        fprintf('Saved %s\n', cfg.pmp_data_path);
+    end
+    fprintf('  PMP: reduction=%.2f%%, drug=%.2f, J=%.3e, avg_final=%.3f\n', ...
+        pmp_data.metrics.tumor_reduction, pmp_data.metrics.total_drug, ...
+        pmp_data.metrics.TotalCost, pmp_data.metrics.avg_final_tumor);
+end
+
+function out = run_smoke(cfg)
+    opts = apply_smoke_overrides(struct());
+    fprintf('\n%s\n', opts.smoke_label);
+    fprintf('Publication (alpha,beta,gamma)=(%g,%g,%g); n=%d; T=%g; Umax=%g; dqn_actions=%d\n', ...
+        cfg.cost.alpha, cfg.cost.beta, cfg.cost.gamma, cfg.model.m, cfg.model.T, ...
+        cfg.cost.Umax, cfg.train.dqn_actions);
+    pmp_data = run_pmp(cfg);
+    validate_reference_pin(cfg, pmp_data);
+    out = struct('pmp_data', pmp_data, 'opts', opts);
+    fprintf('Smoke complete (PMP only; no agent retrain).\n');
 end
 
 %==========================================================================
@@ -155,7 +187,12 @@ function rl_results = run_collect(cfg, nPatients)
     end
 
     save(cfg.rl_data_path, 'rl_results', '-v7.3');
-    fprintf('Saved %s\n', cfg.rl_data_path);
+    if isfield(cfg, 'rl_generated_path')
+        save(cfg.rl_generated_path, 'rl_results', '-v7.3');
+        fprintf('Saved %s and %s\n', cfg.rl_data_path, cfg.rl_generated_path);
+    else
+        fprintf('Saved %s\n', cfg.rl_data_path);
+    end
 end
 
 %==========================================================================
